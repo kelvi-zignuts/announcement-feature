@@ -22,21 +22,25 @@ class AnnouncementController extends Controller
     // Query announcements based on the filter
     $query = Announcement::query();
 
-    if ($filter === 'past' || $filter === 'p' || $filter === 'P'  || $filter === 'Past' || $filter === 'PAST') {
-        $query->where(function ($query) use ($now) {
+    
+
+    // if ($filter === 'past' || $filter === 'p' || $filter === 'P'  || $filter === 'Past' || $filter === 'PAST') {
+        if ($filter === 'past') {
             $query->where('date', '<', $now->toDateString())
                   ->orWhere(function ($query) use ($now) {
                       $query->where('date', '=', $now->toDateString())
                             ->where('time', '<', $now->toTimeString());
                   });
-        });
-    } elseif ($filter === 'upcoming' || $filter === 'u' || $filter === 'future' || $filter === 'upcome' || $filter === 'U') {
-        $query->where('date', '>', $now->toDateString())
-              ->orWhere(function ($query) use ($now) {
-                  $query->where('date', '=', $now->toDateString())
-                        ->where('time', '>=', $now->toTimeString());
-              });
-    }
+        } elseif ($filter === 'upcoming') {
+            $query->where('date', '>', $now->toDateString())
+                  ->orWhere(function ($query) use ($now) {
+                      $query->where('date', '=', $now->toDateString())
+                            ->where('time', '>=', $now->toTimeString());
+                  });
+        }
+        if (!in_array($filter, ['all', 'past', 'upcoming'])) {
+            return response()->json(['error' => 'Invalid filter parameter'], 400);
+        }
 
     $perPage = $request->input('per_page', 2); 
 
