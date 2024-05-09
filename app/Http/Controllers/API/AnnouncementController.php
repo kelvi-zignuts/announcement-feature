@@ -132,7 +132,7 @@ class AnnouncementController extends Controller
         'date' => 'required|date',
         'time' => 'required',
     ]);
-    
+
     $announcement = Announcement::findOrFail($id);
 
     // Check if validation fails
@@ -210,28 +210,23 @@ class AnnouncementController extends Controller
             return response()->json(['error' => 'Invalid delete_type parameter.'], 422);
         }
     
-        // Find the announcement by ID
         $announcement = Announcement::findOrFail($id);
     
-        // Check if announcement datetime is in the past or current
         $announcementDateTime = "{$announcement->date} {$announcement->time}";
         if (strtotime($announcementDateTime) <= strtotime(now())) {
             return response()->json(['error' => 'Cannot delete past or current announcements.'], 422);
         }
-    
-        // Determine the delete type based on the request payload
+
         $deleteType = $request->input('delete_type');
     
-        // Perform the appropriate delete operation
         if ($deleteType === 'soft') {
-            $announcement->delete(); // Soft delete (mark as deleted)
+            $announcement->delete(); // Soft delete 
             $message = 'Announcement soft deleted.';
         } elseif ($deleteType === 'hard') {
-            $announcement->forceDelete(); // Hard delete (permanently remove)
+            $announcement->forceDelete(); // Hard delete 
             $message = 'Announcement permanently deleted.';
         }
-    
-        // Return response indicating the result of the delete operation
+
         return response()->json(['message' => $message, 'announcement' => $announcement], 200);
     }
 
