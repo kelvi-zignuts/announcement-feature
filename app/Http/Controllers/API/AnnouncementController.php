@@ -36,8 +36,6 @@ class AnnouncementController extends Controller
                   $query->where('date', '=', $now->toDateString())
                         ->where('time', '>=', $now->toTimeString());
               });
-    }else {
-        return response()->json(['error' => 'Invalid filter parameter'], 400);
     }
 
     $perPage = $request->input('per_page', 2); 
@@ -226,9 +224,6 @@ class AnnouncementController extends Controller
             $announcement->forceDelete(); // Hard delete 
             $message = 'Announcement permanently deleted.';
         }
-
         return response()->json(['message' => $message, 'announcement' => $announcement], 200);
     }
-
-
 }

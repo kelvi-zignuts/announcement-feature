@@ -16,25 +16,24 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum','admin')->group(function () {
     Route::prefix('announcements')->group(function () {
         Route::get('/', [AnnouncementController::class, 'index']);
-        // Route::get('create', [AnnouncementsController::class, 'create'])->name('announcements.create');
         Route::post('store', [AnnouncementController::class, 'store']);
         Route::post('view/{id}', [AnnouncementController::class, 'view']);
         Route::post('update/{id}', [AnnouncementController::class, 'update']);
         Route::post('delete/{id}', [AnnouncementController::class, 'destroy']);
     });
+});
 
-    Route::prefix('announcements')->group(function () {
-        Route::prefix('user')->group(function () {
+Route::middleware('auth:sanctum','user')->group(function () {
+    Route::prefix('user')->group(function () {
+            Route::prefix('announcements')->group(function () {
             Route::get('/', [UserAnnouncementController::class, 'index']);
             Route::get('/detail/{id}', [UserAnnouncementController::class, 'show']);
         });
     });
 });
-
-
 // Route::get('/health', function (Request $request) {
 //     return 'here';
 // });
