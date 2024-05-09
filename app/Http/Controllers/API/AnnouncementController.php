@@ -126,30 +126,52 @@ class AnnouncementController extends Controller
     //     // return redirect()->route('announcements-index')->with('success', 'Announcement updated successfully!');
     // }
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'message' => 'required|max:64',
-            'date' => 'required|date',
-            'time' => 'required',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'message' => 'required|max:64',
+        'date' => 'required|date',
+        'time' => 'required',
+    ]);
     
-        $announcement = Announcement::findOrFail($id);
-    
-        // Check if the provided date and time are in the future
-        $dateTime = $request->input('date') . ' ' . $request->input('time');
-        if (strtotime($dateTime) <= time()) {
-            return response()->json([
-                'error' => 'You cannot update past announcements.',
-            ], 422); // Use appropriate HTTP status code for validation error
-        }
-    
-        $announcement->update($request->only(['message', 'date', 'time']));
-    
+    $announcement = Announcement::findOrFail($id);
+
+    // Check if validation fails
+    // if ($validator->fails()) {
+    //     return response()->json([
+    //         'message' => 'Validation failed',
+    //         'errors' => $validator->errors(),
+    //     ], 422);
+    // }
+
+    //date
+    $selectedDate = $request->input('date');
+    $now = now()->format('Y-m-d'); // Current date
+
+    if ($selectedDate < $now) {
         return response()->json([
-            'message' => 'Announcement updated successfully.',
-            'announcement' => $announcement,
-        ], 200);
+            'message' => 'The selected date must be today or in the future.',
+        ], 422);
     }
+
+    //time
+    $selectedDateTime = $selectedDate . ' ' . $request->input('time');
+    $nowDateTime = now();
+
+    if (strtotime($selectedDateTime) <= strtotime($nowDateTime)) {
+        return response()->json([
+            'message' => 'The selected time must be in the future.',
+        ], 422);
+    }
+
+    // Update the announcement
+    $announcement->update($request->only(['message', 'date', 'time']));
+
+    return response()->json([
+        'message' => 'Announcement updated successfully.',
+        'announcement' => $announcement,
+    ], 200);
+}
+
     
      /**
      * Delete announcements.
